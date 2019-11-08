@@ -1,0 +1,17 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.App {
+  height: 100vh;
+  box-sizing: border-box;
+  padding: 20px;
+}
+
+svg {
+  width: 100%;
+  height: 100%;
+}
