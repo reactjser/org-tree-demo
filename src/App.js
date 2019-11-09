@@ -1,17 +1,17 @@
-import React, { Component } from "react";
-import orgTreeHelper from "org-tree-helper";
-import DatGui, { DatNumber } from "react-dat-gui";
-import treeData from "./treeData";
-import "react-dat-gui/dist/index.css";
+import React, { Component } from 'react';
+import orgTreeHelper from 'org-tree-helper';
+import DatGui, { DatNumber } from 'react-dat-gui';
+import treeData from './treeData';
+import 'react-dat-gui/dist/index.css';
 
 class App extends Component {
   state = {
-    viewBox: "0 0 0 0",
-    pathData: "",
+    viewBox: '0 0 0 0',
+    pathData: '',
     nodesData: [],
     config: {
-      spacingX: 40,
-      spacingY: 20
+      spacingX: 20,
+      spacingY: 40
     }
   };
 
@@ -30,11 +30,11 @@ class App extends Component {
 
   draw() {
     const {
-      config: { spacingY, spacingX }
+      config: { spacingX, spacingY }
     } = this.state;
     const { pathData, nodesData, layoutExtents } = orgTreeHelper(treeData, [
-      spacingY,
-      spacingX
+      spacingX,
+      spacingY
     ]);
     this.setState({
       pathData,
@@ -60,14 +60,14 @@ class App extends Component {
       <>
         <DatGui data={config} onUpdate={this.handleConfigUpdate}>
           <DatNumber
-            path="spacingY"
+            path="spacingX"
             label="水平内边距"
             min={0}
             max={100}
             step={1}
           />
           <DatNumber
-            path="spacingX"
+            path="spacingY"
             label="垂直内边距"
             min={0}
             max={100}
@@ -100,11 +100,11 @@ class App extends Component {
                     y={d.depth <= 1 ? 20 : d.height / 2}
                     style={{
                       fontSize: 15,
-                      fill: "#1990FF",
-                      textAnchor: "middle",
-                      cursor: "pointer",
+                      fill: '#1990FF',
+                      textAnchor: 'middle',
+                      cursor: 'pointer',
                       // 第三层及以下使用竖排文字
-                      writingMode: d.depth <= 1 ? "inherit" : "tb"
+                      writingMode: d.depth <= 1 ? 'inherit' : 'tb'
                     }}
                     onClick={() => {
                       this.handleDeparemntClick(d.data);
@@ -119,8 +119,8 @@ class App extends Component {
                       y={40}
                       style={{
                         fontSize: 12,
-                        fill: "#333",
-                        textAnchor: "middle"
+                        fill: '#333',
+                        textAnchor: 'middle'
                       }}
                     >
                       {d.data.name}
