@@ -2,6 +2,8 @@ import React, { Component, createRef } from 'react';
 import orgTreeHelper from 'org-tree-helper';
 import DatGui, { DatNumber } from 'react-dat-gui';
 import { saveAs } from 'file-saver';
+import * as d3 from 'd3';
+import convert from 'xml-js';
 import treeData from './treeData';
 import 'react-dat-gui/dist/index.css';
 
@@ -20,6 +22,7 @@ class App extends Component {
 
   componentDidMount() {
     this.draw();
+    this.handleZoom();
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -29,6 +32,26 @@ class App extends Component {
     ) {
       this.draw();
     }
+  }
+
+  resetZoom = () => {
+    d3.select(this.svgRef.current)
+      .transition()
+      .duration(750)
+      .call(this.zoom.transform, d3.zoomIdentity);
+  };
+
+  handleZoom() {
+    this.zoom = d3
+      .zoom()
+      .scaleExtent([0.5, 5])
+      .on('zoom', () => {
+        d3.select('g.container').attr('transform', d3.event.transform);
+      });
+
+    d3.select(this.svgRef.current)
+      .call(this.zoom.transform, d3.zoomIdentity)
+      .call(this.zoom);
   }
 
   draw() {
@@ -42,8 +65,7 @@ class App extends Component {
     this.setState({
       pathData,
       nodesData,
-      // viewBox: `0 0  ${layoutExtents.width} ${layoutExtents.height}`
-      // 避免边框超出边界
+      // 边界上下左右各延伸1px，避免边框超出
       viewBox: `-1 -1  ${layoutExtents.width + 2} ${layoutExtents.height + 2}`
     });
   }
@@ -63,28 +85,37 @@ class App extends Component {
 
     // 获取解析后的svg内容
     const serializer = new XMLSerializer();
-    let source = serializer.serializeToString(svg);
+    const source = serializer.serializeToString(svg);
+
+    // 解析为js对象
+    const sourceObj = convert.xml2js(source);
+
+    // 删除元素的缩放属性
+    delete sourceObj.elements[0].elements[0].attributes.transform;
+
+    // 将js对象转化xml格式
+    let result = convert.js2xml(sourceObj);
 
     // 添加命名空间
-    if (!source.match(/^<svg[^>]+xmlns="http:\/\/www\.w3\.org\/2000\/svg"/)) {
-      source = source.replace(
+    if (!result.match(/^<svg[^>]+xmlns="http:\/\/www\.w3\.org\/2000\/svg"/)) {
+      result = result.replace(
         /^<svg/,
         '<svg xmlns="http://www.w3.org/2000/svg"'
       );
     }
-    if (!source.match(/^<svg[^>]+"http:\/\/www\.w3\.org\/1999\/xlink"/)) {
-      source = source.replace(
+    if (!result.match(/^<svg[^>]+"http:\/\/www\.w3\.org\/1999\/xlink"/)) {
+      result = result.replace(
         /^<svg/,
         '<svg xmlns:xlink="http://www.w3.org/1999/xlink"'
       );
     }
 
     // 添加xml声明
-    source = '<?xml version="1.0" standalone="no"?>\r\n' + source;
+    result = '<?xml version="1.0" standalone="no"?>\r\n' + result;
 
     // 将svg转为URI data
     const url =
-      'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(source);
+      'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(result);
 
     // 导出SVG文件
     saveAs(url, '组织架构图.svg');
@@ -100,6 +131,7 @@ class App extends Component {
     return (
       <>
         <div className="buttons-wrapper">
+          <button onClick={this.resetZoom}>重置缩放</button>
           <button onClick={this.handleExportSvg}>导出SVG</button>
           <button onClick={this.handleExportPdf}>导出PDF</button>
         </div>
@@ -121,7 +153,7 @@ class App extends Component {
         </DatGui>
         <div className="App">
           <svg viewBox={viewBox} ref={this.svgRef}>
-            <g>
+            <g className="container">
               {pathData && (
                 <path d={pathData} stroke="#567ad4" strokeLinecap="round" />
               )}

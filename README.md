@@ -4,14 +4,14 @@ This is a demo of `org-tree-helper`, if you need more detail, see https://www.np
 
 ## Features
 
-- 父子节点之间支持跨层级连接
-- 动态节点大小
-- 导出 SVG 文件
+- 支持父子节点之间跨层级连接
+- 支持动态节点大小
+- 支持导出 SVG 文件
+- 支持缩放和平移
 
-## TODOs
+## TODOS
 
-- 导出 PDF 文件
-- 集成缩放和平移
+- 支持导出矢量 PDF 文件
 
 ## Quick Overview
 
