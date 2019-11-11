@@ -35,7 +35,10 @@ class App extends Component {
   }
 
   resetZoom = () => {
-    d3.select(this.svgRef.current).call(this.zoom.transform, d3.zoomIdentity);
+    d3.select(this.svgRef.current)
+      .transition()
+      .duration(750)
+      .call(this.zoom.transform, d3.zoomIdentity);
   };
 
   handleZoom() {
