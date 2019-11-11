@@ -1,10 +1,13 @@
-import React, { Component } from 'react';
+import React, { Component, createRef } from 'react';
 import orgTreeHelper from 'org-tree-helper';
 import DatGui, { DatNumber } from 'react-dat-gui';
+import { saveAs } from 'file-saver';
 import treeData from './treeData';
 import 'react-dat-gui/dist/index.css';
 
 class App extends Component {
+  svgRef = createRef();
+
   state = {
     viewBox: '0 0 0 0',
     pathData: '',
@@ -39,7 +42,9 @@ class App extends Component {
     this.setState({
       pathData,
       nodesData,
-      viewBox: `0 0  ${layoutExtents.width} ${layoutExtents.height}`
+      // viewBox: `0 0  ${layoutExtents.width} ${layoutExtents.height}`
+      // 避免边框超出边界
+      viewBox: `-1 -1  ${layoutExtents.width + 2} ${layoutExtents.height + 2}`
     });
   }
 
@@ -53,11 +58,51 @@ class App extends Component {
     alert(`You clicked ${data.department}`);
   };
 
+  handleExportSvg = () => {
+    const svg = this.svgRef.current;
+
+    // 获取解析后的svg内容
+    const serializer = new XMLSerializer();
+    let source = serializer.serializeToString(svg);
+
+    // 添加命名空间
+    if (!source.match(/^<svg[^>]+xmlns="http:\/\/www\.w3\.org\/2000\/svg"/)) {
+      source = source.replace(
+        /^<svg/,
+        '<svg xmlns="http://www.w3.org/2000/svg"'
+      );
+    }
+    if (!source.match(/^<svg[^>]+"http:\/\/www\.w3\.org\/1999\/xlink"/)) {
+      source = source.replace(
+        /^<svg/,
+        '<svg xmlns:xlink="http://www.w3.org/1999/xlink"'
+      );
+    }
+
+    // 添加xml声明
+    source = '<?xml version="1.0" standalone="no"?>\r\n' + source;
+
+    // 将svg转为URI data
+    const url =
+      'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(source);
+
+    // 导出SVG文件
+    saveAs(url, '组织架构图.svg');
+  };
+
+  handleExportPdf = () => {
+    alert('TODO');
+  };
+
   render() {
     const { config, viewBox, pathData, nodesData } = this.state;
 
     return (
       <>
+        <div className="buttons-wrapper">
+          <button onClick={this.handleExportSvg}>导出SVG</button>
+          <button onClick={this.handleExportPdf}>导出PDF</button>
+        </div>
         <DatGui data={config} onUpdate={this.handleConfigUpdate}>
           <DatNumber
             path="spacingX"
@@ -75,7 +120,7 @@ class App extends Component {
           />
         </DatGui>
         <div className="App">
-          <svg viewBox={viewBox}>
+          <svg viewBox={viewBox} ref={this.svgRef}>
             <g>
               {pathData && (
                 <path d={pathData} stroke="#567ad4" strokeLinecap="round" />
