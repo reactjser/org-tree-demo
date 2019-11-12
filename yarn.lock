@@ -3175,7 +3175,7 @@ d3-geo@1:
   dependencies:
     d3-array "1 - 2"
 
-d3-hierarchy@1, d3-hierarchy@^1.1.8:
+d3-hierarchy@1:
   version "1.1.8"
   resolved "https://registry.npm.taobao.org/d3-hierarchy/download/d3-hierarchy-1.1.8.tgz#7a6317bd3ed24e324641b6f1e76e978836b008cc"
   integrity sha1-emMXvT7STjJGQbbx526XiDawCMw=
@@ -6236,7 +6236,7 @@ lodash.clamp@^4.0.2:
   resolved "https://registry.npm.taobao.org/lodash.clamp/download/lodash.clamp-4.0.3.tgz?cache=0&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Flodash.clamp%2Fdownload%2Flodash.clamp-4.0.3.tgz#5c24bedeeeef0753560dc2b4cb4671f90a6ddfaa"
   integrity sha1-XCS+3u7vB1NWDcK0y0Zx+Qpt36o=
 
-lodash.clonedeep@^4.3.2, lodash.clonedeep@^4.5.0:
+lodash.clonedeep@^4.3.2:
   version "4.5.0"
   resolved "https://registry.npm.taobao.org/lodash.clonedeep/download/lodash.clonedeep-4.5.0.tgz#e23f3f9c4f8fbdde872529c1071857a086e5ccef"
   integrity sha1-4j8/nE+Pvd6HJSnBBxhXoIblzO8=
@@ -7091,13 +7091,10 @@ optionator@^0.8.1, optionator@^0.8.2:
     type-check "~0.3.2"
     word-wrap "~1.2.3"
 
-org-tree-helper@0.1.2:
-  version "0.1.2"
-  resolved "https://registry.npm.taobao.org/org-tree-helper/download/org-tree-helper-0.1.2.tgz#adbbc1c52d0319b1d7c2de144f38a8cbc224043d"
-  integrity sha1-rbvBxS0DGbHXwt4UTzioy8IkBD0=
-  dependencies:
-    d3-hierarchy "^1.1.8"
-    lodash.clonedeep "^4.5.0"
+org-tree-helper@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.npm.taobao.org/org-tree-helper/download/org-tree-helper-1.0.0.tgz#cad787150722b6820d3bdfbd3b2bb738ebf136e5"
+  integrity sha1-yteHFQcitoINO9+9Oyu3OOvxNuU=
 
 original@^1.0.0:
   version "1.0.2"
