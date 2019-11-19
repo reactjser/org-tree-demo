@@ -7091,10 +7091,10 @@ optionator@^0.8.1, optionator@^0.8.2:
     type-check "~0.3.2"
     word-wrap "~1.2.3"
 
-org-tree-helper@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.npm.taobao.org/org-tree-helper/download/org-tree-helper-1.0.0.tgz#cad787150722b6820d3bdfbd3b2bb738ebf136e5"
-  integrity sha1-yteHFQcitoINO9+9Oyu3OOvxNuU=
+org-tree-helper@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.npmjs.org/org-tree-helper/-/org-tree-helper-2.0.1.tgz#33e59f558ad2fda3689d42b6bc64ee0a5d2d5ad2"
+  integrity sha512-AEnTmke4VSlX2RdxwbZ3Kcq0vWZoo5iZbKSYq5KiYfj9kY4doI1NRDq2Z7kxBh6tAk9/NdjC6kR+q9fMpam/8g==
 
 original@^1.0.0:
   version "1.0.2"
