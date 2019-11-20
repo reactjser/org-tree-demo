@@ -1,18 +1,18 @@
-import React, { Component, createRef } from 'react';
-import orgTreeHelper from 'org-tree-helper';
-import DatGui, { DatNumber } from 'react-dat-gui';
-import { saveAs } from 'file-saver';
-import * as d3 from 'd3';
-import convert from 'xml-js';
-import treeData from './treeData';
-import 'react-dat-gui/dist/index.css';
+import React, { Component, createRef } from "react";
+import orgTreeHelper from "org-tree-helper";
+import DatGui, { DatNumber } from "react-dat-gui";
+import { saveAs } from "file-saver";
+import * as d3 from "d3";
+import convert from "xml-js";
+import treeData from "./treeData";
+import "react-dat-gui/dist/index.css";
 
 class App extends Component {
   svgRef = createRef();
 
   state = {
-    viewBox: '0 0 0 0',
-    pathData: '',
+    viewBox: "0 0 0 0",
+    pathData: "",
     nodesData: [],
     config: {
       spacingX: 20,
@@ -45,8 +45,8 @@ class App extends Component {
     this.zoom = d3
       .zoom()
       .scaleExtent([0.5, 5])
-      .on('zoom', () => {
-        d3.select('g.container').attr('transform', d3.event.transform);
+      .on("zoom", () => {
+        d3.select("g.container").attr("transform", d3.event.transform);
       });
 
     d3.select(this.svgRef.current)
@@ -58,10 +58,10 @@ class App extends Component {
     const {
       config: { spacingX, spacingY }
     } = this.state;
-    const { pathData, nodesData, layoutExtents } = orgTreeHelper(treeData, [
-      spacingX,
-      spacingY
-    ]);
+    const { pathData, nodesData, layoutExtents } = orgTreeHelper(treeData, {
+      spacing: [spacingX, spacingY],
+      horizontal: true
+    });
     this.setState({
       pathData,
       nodesData,
@@ -115,14 +115,14 @@ class App extends Component {
 
     // 将svg转为URI data
     const url =
-      'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(result);
+      "data:image/svg+xml;charset=utf-8," + encodeURIComponent(result);
 
     // 导出SVG文件
-    saveAs(url, '组织架构图.svg');
+    saveAs(url, "组织架构图.svg");
   };
 
   handleExportPdf = () => {
-    alert('TODO');
+    alert("TODO");
   };
 
   render() {
@@ -163,8 +163,8 @@ class App extends Component {
                   transform={`translate(${d.x},${d.y})`}
                 >
                   <rect
-                    x={-d.width / 2}
-                    y={0}
+                    x={0}
+                    y={-d.height / 2}
                     width={d.width}
                     height={d.height}
                     rx={2}
@@ -174,14 +174,13 @@ class App extends Component {
                     fillOpacity="0.09"
                   />
                   <text
-                    y={d.depth <= 1 ? 20 : d.height / 2}
+                    x={d.width / 2}
+                    y={d.depth <= 1 ? -5 : 5}
                     style={{
                       fontSize: 15,
-                      fill: '#1990FF',
-                      textAnchor: 'middle',
-                      cursor: 'pointer',
-                      // 第三层及以下使用竖排文字
-                      writingMode: d.depth <= 1 ? 'inherit' : 'tb'
+                      fill: "#1990FF",
+                      textAnchor: "middle",
+                      cursor: "pointer"
                     }}
                     onClick={() => {
                       this.handleDeparemntClick(d.data);
@@ -193,11 +192,12 @@ class App extends Component {
                   {/* 前两层显示部门领导人 */}
                   {d.depth <= 1 && (
                     <text
-                      y={40}
+                      x={d.width / 2}
+                      y={14}
                       style={{
                         fontSize: 12,
-                        fill: '#333',
-                        textAnchor: 'middle'
+                        fill: "#333",
+                        textAnchor: "middle"
                       }}
                     >
                       {d.data.name}
