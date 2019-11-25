@@ -8,8 +8,6 @@ body {
 
 .App {
   height: 100vh;
-  box-sizing: border-box;
-  padding: 20px;
 }
 
 .buttons-wrapper {
@@ -20,7 +18,7 @@ body {
 
 .buttons-wrapper button {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  font-feature-settings: 'tnum';
+  font-feature-settings: "tnum";
   box-sizing: border-box;
   font-family: inherit;
   overflow: visible;

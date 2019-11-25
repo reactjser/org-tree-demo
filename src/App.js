@@ -4,8 +4,13 @@ import DatGui, { DatNumber } from "react-dat-gui";
 import { saveAs } from "file-saver";
 import * as d3 from "d3";
 import convert from "xml-js";
+import SVGtoPDF from "svg-to-pdfkit";
+import blobStream from "blob-stream";
 import treeData from "./treeData";
 import "react-dat-gui/dist/index.css";
+
+const A4_SIZE = [841.89, 595.28];
+const PADDING = [20, 20]; // 外边距
 
 class App extends Component {
   svgRef = createRef();
@@ -23,6 +28,7 @@ class App extends Component {
   componentDidMount() {
     this.draw();
     this.handleZoom();
+    this.loadFont();
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -33,6 +39,18 @@ class App extends Component {
       this.draw();
     }
   }
+
+  loadFont = () => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("GET", process.env.PUBLIC_URL + "fonts/苹方黑体-准-简.ttf", true);
+    xhr.responseType = "arraybuffer";
+    xhr.send();
+    xhr.onload = e => {
+      if (e.target.status === 200) {
+        this.pingfangFont = xhr.response;
+      }
+    };
+  };
 
   resetZoom = () => {
     d3.select(this.svgRef.current)
@@ -60,13 +78,13 @@ class App extends Component {
     } = this.state;
     const { pathData, nodesData, layoutExtents } = orgTreeHelper(treeData, {
       spacing: [spacingX, spacingY],
-      horizontal: true
+      horizontal: false // 竖直展示
     });
     this.setState({
       pathData,
       nodesData,
-      // 边界上下左右各延伸1px，避免边框超出
-      viewBox: `-1 -1  ${layoutExtents.width + 2} ${layoutExtents.height + 2}`
+      viewBox: `-${PADDING[0]} -${PADDING[1]}  ${layoutExtents.width +
+        PADDING[0] * 2} ${layoutExtents.height + PADDING[1] * 2}`
     });
   }
 
@@ -80,7 +98,7 @@ class App extends Component {
     alert(`You clicked ${data.department}`);
   };
 
-  handleExportSvg = () => {
+  getSourceObj = () => {
     const svg = this.svgRef.current;
 
     // 获取解析后的svg内容
@@ -94,7 +112,11 @@ class App extends Component {
     delete sourceObj.elements[0].elements[0].attributes.transform;
 
     // 将js对象转化xml格式
-    let result = convert.js2xml(sourceObj);
+    return convert.js2xml(sourceObj);
+  };
+
+  handleExportSvg = () => {
+    let result = this.getSourceObj();
 
     // 添加命名空间
     if (!result.match(/^<svg[^>]+xmlns="http:\/\/www\.w3\.org\/2000\/svg"/)) {
@@ -122,7 +144,41 @@ class App extends Component {
   };
 
   handleExportPdf = () => {
-    alert("TODO");
+    const doc = new window.PDFDocument({
+      compress: true,
+      size: A4_SIZE
+    });
+
+    if (!this.pingfangFont) {
+      throw new Error("Font is not prepared!");
+    }
+
+    // register font
+    doc.registerFont("MyFont", this.pingfangFont);
+
+    const result = this.getSourceObj();
+
+    // convert svg URI data to PDF
+    SVGtoPDF(doc, result, 0, 0, {
+      width: A4_SIZE[0],
+      height: A4_SIZE[1],
+      fontCallback: (family, bold, italic, fontOptions) => {
+        return "MyFont";
+      }
+    });
+
+    // pipe the document to a blob
+    const stream = doc.pipe(blobStream());
+
+    doc.end();
+
+    stream.on("finish", function() {
+      // or get a blob URL for display in the browser
+      const url = stream.toBlobURL("application/pdf");
+
+      // save as PDF
+      saveAs(url, "组织架构图.PDF");
+    });
   };
 
   render() {
@@ -131,7 +187,7 @@ class App extends Component {
     return (
       <>
         <div className="buttons-wrapper">
-          <button onClick={this.resetZoom}>重置缩放</button>
+          <button onClick={this.resetZoom}>重置</button>
           <button onClick={this.handleExportSvg}>导出SVG</button>
           <button onClick={this.handleExportPdf}>导出PDF</button>
         </div>
@@ -151,6 +207,7 @@ class App extends Component {
             step={1}
           />
         </DatGui>
+
         <div className="App">
           <svg viewBox={viewBox} ref={this.svgRef}>
             <g className="container">
@@ -163,8 +220,8 @@ class App extends Component {
                   transform={`translate(${d.x},${d.y})`}
                 >
                   <rect
-                    x={0}
-                    y={-d.height / 2}
+                    x={-d.width / 2}
+                    y={0}
                     width={d.width}
                     height={d.height}
                     rx={2}
@@ -174,8 +231,11 @@ class App extends Component {
                     fillOpacity="0.09"
                   />
                   <text
-                    x={d.width / 2}
-                    y={d.depth <= 1 ? -5 : 5}
+                    y={
+                      d.depth <= 1
+                        ? 20
+                        : d.height / 2 - (18 * d.data.department.length) / 2 - 6
+                    }
                     style={{
                       fontSize: 15,
                       fill: "#1990FF",
@@ -186,14 +246,18 @@ class App extends Component {
                       this.handleDeparemntClick(d.data);
                     }}
                   >
-                    {d.data.department}
+                    {d.depth <= 1
+                      ? d.data.department
+                      : d.data.department.split("").map(text => (
+                          <tspan x="0" dy="18" key={text}>
+                            {text}
+                          </tspan>
+                        ))}
                   </text>
 
-                  {/* 前两层显示部门领导人 */}
                   {d.depth <= 1 && (
                     <text
-                      x={d.width / 2}
-                      y={14}
+                      y={40}
                       style={{
                         fontSize: 12,
                         fill: "#333",
